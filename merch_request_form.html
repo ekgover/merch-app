@@ -128,12 +128,15 @@ input.invalid,select.invalid,textarea.invalid{border-color:var(--danger)}
 
 /* TRACKER */
 .badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
-.b-wait{background:#f1efe8;color:#5f5e5a}
-.b-ok{background:var(--success-light);color:var(--success)}
-.b-no{background:var(--danger-light);color:var(--danger)}
-.b-q{background:var(--warning-light);color:var(--warning)}
-.b-ship{background:#e6f1fb;color:#185fa5}
-.b-proc{background:#eeedfe;color:#534ab7}
+.b-yellow{background:#FEF3C7;color:#92400E;font-weight:600}
+.b-green{background:#D1FAE5;color:#065F46;font-weight:600}
+.b-red{background:#FEE2E2;color:#991B1B;font-weight:600}
+.b-wait{background:#FEF3C7;color:#92400E}
+.b-ok{background:#D1FAE5;color:#065F46}
+.b-no{background:#FEE2E2;color:#991B1B}
+.b-q{background:#FEF3C7;color:#92400E}
+.b-ship{background:#D1FAE5;color:#065F46}
+.b-proc{background:#FEF3C7;color:#92400E}
 .t-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
 .t-hdr{padding:10px 14px;border-bottom:0.5px solid var(--border);background:#fafaf8;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .t-id{font-size:11px;font-family:monospace;color:var(--muted)}
@@ -679,9 +682,9 @@ function renderTracker(requests) {
     return `<div class="t-card">
       <div class="t-hdr">
         <span class="t-id">${r.ID||'—'}</span>
-        <span style="font-size:11px;color:var(--muted)">${r.SubmittedDate||''}</span>
+        <span style="font-size:11px;color:var(--muted)">${fmtDate(r.SubmittedDate)}</span>
         ${apBadge(r.ApprovalStatus)}
-        ${r.OrderNumber?stBadge(r.OrderStatus||'В обработке'):'<span style="font-size:11px;color:var(--hint)">Ожидает переноса в 1С</span>'}
+        ${r.OrderStatus?apBadge(r.OrderStatus):''}
         <span class="t-total">${fmt(total)}</span>
       </div>
       <div class="t-body">
@@ -697,8 +700,27 @@ function renderTracker(requests) {
   window._trackerData = Object.values(grouped);
 }
 
-function apBadge(s){const m={'Ожидает согласования':'b-wait','Согласовано':'b-ok','Отклонено':'b-no','Уточнение':'b-q'};return`<span class="badge ${m[s]||'b-wait'}">${s||'Ожидает согласования'}</span>`;}
-function stBadge(s){const m={'В обработке':'b-proc','Собирается':'b-proc','Отгружен':'b-ship','Доставлен':'b-ok','Отменён':'b-no'};return`<span class="badge ${m[s]||'b-proc'}">${s}</span>`;}
+function apBadge(s){
+  const m={
+    'Ожидает согласования':'b-yellow',
+    'Согласована':'b-yellow',
+    'Не согласовано':'b-red',
+    'В работе':'b-yellow',
+    'Собран':'b-green',
+    'Отгружен':'b-green',
+    'Отмена':'b-red',
+    // legacy support
+    'Согласовано':'b-yellow',
+    'Отклонено':'b-red',
+    'Уточнение':'b-yellow',
+    'В обработке':'b-yellow',
+    'Собирается':'b-green',
+    'Доставлен':'b-green',
+    'Отменён':'b-red',
+  };
+  return`<span class="badge ${m[s]||'b-yellow'}">${s||'Ожидает согласования'}</span>`;
+}
+function stBadge(s){return'';}
 
 function showDetail(i) {
   const g = window._trackerData[i];
@@ -729,6 +751,7 @@ function showScreen(name) {
 
 // ── UTILS ─────────────────────────────────────────────────────
 function fmt(v){return new Intl.NumberFormat('ru-RU',{style:'currency',currency:'RUB',minimumFractionDigits:2}).format(Number(v)||0);}
+function fmtDate(s){if(!s)return'';const d=new Date(s);if(isNaN(d))return s;return d.toLocaleDateString('ru-RU');}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.className='toast',3500);}
 
