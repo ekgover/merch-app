@@ -165,7 +165,7 @@ input.invalid,select.invalid,textarea.invalid{border-color:var(--danger)}
 .ds{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--hint);padding:10px 0 4px;border-bottom:0.5px solid var(--border);margin-bottom:2px}
 
 /* LOGIN screen */
-#login-screen{display:none}
+#login-screen{max-width:420px;margin:40px auto 0}
 </style>
 </head>
 <body>
@@ -184,7 +184,7 @@ input.invalid,select.invalid,textarea.invalid{border-color:var(--danger)}
 </div>
 
 <!-- LOGIN -->
-<div id="login-screen" style="display:none">
+<div id="login-screen">
   <div class="login-card">
     <h2>Вход в систему</h2>
     <p>Введите ваше имя и рабочий email</p>
@@ -712,14 +712,14 @@ function fmt(v){return new Intl.NumberFormat('ru-RU',{style:'currency',currency:
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.className='toast',3500);}
 
-// Init — auto-start, ask name only if first time
-if (!currentUser) {
-  const name = prompt('Введите ваше имя:') || 'Сотрудник';
-  const email = prompt('Введите ваш рабочий email:') || 'user@company.com';
-  currentUser = {name: name.trim(), email: email.trim()};
-  localStorage.setItem('merch_user', JSON.stringify(currentUser));
+// Init
+if (currentUser) {
+  initApp();
+} else {
+  // Show login form
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('main-app').style.display = 'none';
 }
-initApp();
 </script>
 </body>
 </html>
